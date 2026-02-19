@@ -5,6 +5,7 @@ const PUBLIC_PATHS = [
   "/login",
   "/api/auth",
   "/api/webhooks/github",
+  "/api/health",
 ];
 
 export async function middleware(request: NextRequest) {
