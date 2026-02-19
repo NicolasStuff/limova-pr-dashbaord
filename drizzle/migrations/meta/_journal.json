@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1771367540433,
+      "tag": "0000_empty_nitro",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771373827090,
+      "tag": "0001_striped_kate_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771379827000,
+      "tag": "0002_magic_link_auth",
+      "breakpoints": true
+    }
+  ]
+}

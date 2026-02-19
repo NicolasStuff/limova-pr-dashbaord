@@ -20,6 +20,22 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Magic Link Authentication
+
+Authentication now uses one-time magic links sent by email through Resend.
+
+- Allowed domain is configured with `AUTH_ALLOWED_EMAIL_DOMAIN` (default `limova.ai`).
+- Users can only sign in with emails ending in `@limova.ai`.
+- Link validity is configured via `MAGIC_LINK_TTL_MINUTES` (default `15`).
+
+Required environment variables:
+
+- `RESEND_API_KEY`
+- `AUTH_EMAIL_FROM` (example: `no-reply@limova.ai`)
+- `AUTH_ALLOWED_EMAIL_DOMAIN`
+- `MAGIC_LINK_TTL_MINUTES`
+- `NEXT_PUBLIC_APP_URL`
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
