@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
+import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import type { PullRequestCard, PrColumn } from "@/types/pr";
 import { COLUMN_ORDER } from "@/lib/utils/constants";
@@ -45,10 +46,8 @@ const columnLabels: Record<PrColumn, string> = {
 
 function PrRow({ pr, index }: { pr: PullRequestCard; index: number }) {
   return (
-    <a
-      href={pr.url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/pr/${pr.id}`}
       className={cn(
         "flex items-center gap-4 px-4 py-3 transition-all duration-200 hover:bg-bg-hover",
         "border-l-3 border-l-transparent",
@@ -99,7 +98,7 @@ function PrRow({ pr, index }: { pr: PullRequestCard; index: number }) {
       <span className="text-2xs text-text-muted font-mono shrink-0 w-20 text-right hidden sm:block">
         {formatDistanceToNow(new Date(pr.githubUpdatedAt), { addSuffix: true })}
       </span>
-    </a>
+    </Link>
   );
 }
 

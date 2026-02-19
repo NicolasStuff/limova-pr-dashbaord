@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
+import Link from "next/link";
 import type { PullRequestCard } from "@/types/pr";
 import { cn } from "@/lib/utils/cn";
 import { Avatar } from "@/components/ui/avatar";
@@ -76,13 +77,19 @@ export function PrCardDetail({ pr, onClose }: PrCardDetailProps) {
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              href={`/pr/${pr.id}`}
+              className="inline-flex items-center justify-center rounded-md font-medium font-sans h-7 px-2.5 text-xs bg-bg-surface text-text-primary border border-border hover:bg-bg-hover hover:border-border-strong transition-all duration-150"
+            >
+              Full details
+            </Link>
             <a
               href={pr.url}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-md font-medium font-sans h-7 px-2.5 text-xs bg-bg-surface text-text-primary border border-border hover:bg-bg-hover hover:border-border-strong transition-all duration-150"
             >
-              Open on GitHub
+              GitHub
             </a>
             <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close detail panel">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
