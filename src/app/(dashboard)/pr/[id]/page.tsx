@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
+import { ClaudeReviewPanel } from "@/components/board/claude-review-panel";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow, format } from "date-fns";
 
@@ -241,6 +242,9 @@ export default function PrDetailPage({ params }: { params: Promise<{ id: string 
         <h3 className="text-2xs font-mono text-text-muted uppercase tracking-wider mb-2">Reviews</h3>
         <ReviewTimeline reviews={pr.reviews ?? []} />
       </div>
+
+      {/* Claude Review */}
+      <ClaudeReviewPanel prNumber={pr.number} repositoryFullName={pr.repositoryFullName} pullRequestId={pr.id} />
 
       {/* Timestamps */}
       <div className="space-y-1.5 text-xs font-mono text-text-muted border-t border-border-subtle pt-4">

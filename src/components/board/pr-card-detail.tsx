@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CiStatusPanel } from "./ci-status-panel";
+import { ClaudeReviewPanel } from "./claude-review-panel";
 import { formatDistanceToNow, format } from "date-fns";
 
 interface PrCardDetailProps {
@@ -169,6 +170,9 @@ export function PrCardDetail({ pr, onClose }: PrCardDetailProps) {
 
           {/* CI Status — detailed checks fetched live from GitHub */}
           <CiStatusPanel prId={pr.id} />
+
+          {/* Claude Review */}
+          <ClaudeReviewPanel prNumber={pr.number} repositoryFullName={pr.repositoryFullName} pullRequestId={pr.id} />
 
           {/* Timestamps */}
           <div className="space-y-1.5 text-xs font-mono text-text-muted border-t border-border-subtle pt-4">

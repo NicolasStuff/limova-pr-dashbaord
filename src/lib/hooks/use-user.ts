@@ -5,6 +5,7 @@ import useSWR from "swr";
 interface User {
   id: number;
   email: string;
+  repoBasePath: string | null;
   createdAt: string;
   updatedAt: string;
 }

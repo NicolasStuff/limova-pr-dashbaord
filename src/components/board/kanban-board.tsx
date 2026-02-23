@@ -13,7 +13,7 @@ import type { BoardData } from "@/types/pr";
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 
 function computeStaleCount(data: BoardData | undefined): number {
-  if (!data) return 0;
+  if (!data?.columns) return 0;
   const now = Date.now();
   let count = 0;
   for (const [column, cards] of Object.entries(data.columns)) {
@@ -71,7 +71,7 @@ function BoardContent({ onStaleCount }: { onStaleCount: (count: number) => void 
         >
           <KanbanColumn
             definition={COLUMNS[columnKey]}
-            cards={data?.columns[columnKey] ?? []}
+            cards={data?.columns?.[columnKey] ?? []}
           />
         </div>
       ))}

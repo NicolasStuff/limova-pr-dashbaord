@@ -10,6 +10,7 @@ import {
   jsonb,
   uniqueIndex,
   index,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -27,6 +28,14 @@ export const syncStatusEnum = pgEnum("sync_status", [
   "running",
   "success",
   "failure",
+]);
+
+export const claudeReviewStatusEnum = pgEnum("claude_review_status", [
+  "pending",
+  "running",
+  "completed",
+  "failed",
+  "cancelled",
 ]);
 
 // Tables
@@ -120,6 +129,76 @@ export const syncLogs = pgTable("sync_logs", {
   completedAt: timestamp("completed_at"),
 });
 
+// Claude Review tables
+export const claudeReviews = pgTable(
+  "claude_reviews",
+  {
+    id: serial("id").primaryKey(),
+    pullRequestId: integer("pull_request_id")
+      .notNull()
+      .references(() => pullRequests.id, { onDelete: "cascade" }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    status: claudeReviewStatusEnum("status").notNull().default("pending"),
+    scope: varchar("scope", { length: 20 }).notNull(),
+    reviewerCount: varchar("reviewer_count", { length: 10 }).notNull(),
+    dryRun: boolean("dry_run").notNull().default(true),
+    verifyImplementation: boolean("verify_implementation").notNull().default(false),
+    repositoryFullName: varchar("repository_full_name", { length: 511 }).notNull(),
+    prNumber: integer("pr_number").notNull(),
+    currentIteration: integer("current_iteration").default(0),
+    maxIterations: integer("max_iterations").default(5),
+    currentPhase: varchar("current_phase", { length: 100 }),
+    progressPct: integer("progress_pct").default(0),
+    resultStatus: varchar("result_status", { length: 20 }),
+    resultBody: text("result_body"),
+    filesAnalyzed: integer("files_analyzed").default(0),
+    totalFindings: integer("total_findings").default(0),
+    iterationsCompleted: integer("iterations_completed").default(0),
+    errorMessage: text("error_message"),
+    rawOutput: text("raw_output").default(""),
+    structuredLog: jsonb("structured_log").default([]),
+    postedToGithub: boolean("posted_to_github").default(false),
+    postedAt: timestamp("posted_at"),
+    startedAt: timestamp("started_at"),
+    completedAt: timestamp("completed_at"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("claude_reviews_pull_request_id_idx").on(table.pullRequestId),
+    index("claude_reviews_user_id_idx").on(table.userId),
+    index("claude_reviews_status_idx").on(table.status),
+  ]
+);
+
+export const claudeReviewFindings = pgTable(
+  "claude_review_findings",
+  {
+    id: serial("id").primaryKey(),
+    reviewId: integer("review_id")
+      .notNull()
+      .references(() => claudeReviews.id, { onDelete: "cascade" }),
+    findingHash: varchar("finding_hash", { length: 64 }).notNull(),
+    file: varchar("file", { length: 1024 }).notNull(),
+    line: integer("line").notNull(),
+    severity: varchar("severity", { length: 20 }).notNull(),
+    comment: text("comment").notNull(),
+    suggestion: text("suggestion"),
+    diffContext: text("diff_context"),
+    iteration: integer("iteration").notNull(),
+    postedToGithub: boolean("posted_to_github").default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("claude_review_findings_review_id_idx").on(table.reviewId),
+    unique("claude_review_findings_review_hash_idx").on(
+      table.reviewId,
+      table.findingHash
+    ),
+  ]
+);
+
 // Relations
 export const repositoriesRelations = relations(repositories, ({ many }) => ({
   pullRequests: many(pullRequests),
@@ -134,6 +213,7 @@ export const pullRequestsRelations = relations(
       references: [repositories.id],
     }),
     reviews: many(reviews),
+    claudeReviews: many(claudeReviews),
   })
 );
 
@@ -155,6 +235,7 @@ export const syncLogsRelations = relations(syncLogs, ({ one }) => ({
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  repoBasePath: varchar("repo_base_path", { length: 1024 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -182,8 +263,34 @@ export const magicLinkTokens = pgTable(
   ]
 );
 
+export const claudeReviewsRelations = relations(
+  claudeReviews,
+  ({ one, many }) => ({
+    pullRequest: one(pullRequests, {
+      fields: [claudeReviews.pullRequestId],
+      references: [pullRequests.id],
+    }),
+    user: one(users, {
+      fields: [claudeReviews.userId],
+      references: [users.id],
+    }),
+    findings: many(claudeReviewFindings),
+  })
+);
+
+export const claudeReviewFindingsRelations = relations(
+  claudeReviewFindings,
+  ({ one }) => ({
+    review: one(claudeReviews, {
+      fields: [claudeReviewFindings.reviewId],
+      references: [claudeReviews.id],
+    }),
+  })
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
+  claudeReviews: many(claudeReviews),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
